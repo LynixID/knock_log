@@ -1,27 +1,26 @@
 import socket
 
-LISTEN_PORT = 9999
+LISTEN_IP = "0.0.0.0"   # Mendengarkan semua interface
+LISTEN_PORT = 9999      # Port harus sama dengan target port di server
 
 def main():
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(("", LISTEN_PORT))
-    server_socket.listen(1)
-    print(f"Menunggu koneksi di port {LISTEN_PORT}...")
+    server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_sock.bind((LISTEN_IP, LISTEN_PORT))
+    server_sock.listen(1)
+    print(f"Mendengarkan koneksi di {LISTEN_IP}:{LISTEN_PORT}...")
 
-    conn, addr = server_socket.accept()
-    print(f"Koneksi dari {addr}")
+    conn, addr = server_sock.accept()
+    print(f"Koneksi diterima dari {addr}")
 
-    try:
+    with conn:
         while True:
             data = conn.recv(1024)
             if not data:
                 break
-            print("LOG:", data.decode().strip())
-    except Exception as e:
-        print("Error saat terima log:", e)
-    finally:
-        conn.close()
-        server_socket.close()
+            print(data.decode(), end='')  # Tampilkan log yang diterima secara real-time
+
+    print("Koneksi terputus")
+    server_sock.close()
 
 if __name__ == "__main__":
     main()
